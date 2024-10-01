@@ -1,16 +1,36 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { Context } from '../store/appContext.js';
 
 export default function Login() {
+    const { actions } = useContext(Context);
     const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     function handleOnClick() {
         navigate("/signup");
     }
 
+    async function handleOnSubmit(event) {
+        event.preventDefault();
+        const { accessToken, error } = await actions.login({ email, password });
+        if (error !== undefined) {
+            Swal.fire({
+                title: 'Login failed',
+                text: error,
+                icon: 'error'
+            });
+            return;
+        }
+        localStorage.setItem("access_token", accessToken);
+        navigate("/me");
+    }
+
     return (
         <div className="vh-100 d-flex justify-content-center align-items-center">
-            <form>
+            <form onSubmit={handleOnSubmit}>
                 <img
                     className="img-fluid mb-4"
                     src="https://static-00.iconduck.com/assets.00/bitwarden-v2-icon-512x512-cstnj11p.png"
@@ -24,9 +44,10 @@ export default function Login() {
                         className="form-control"
                         type="email"
                         placeholder="name@example.com"
+                        onChange={e => setEmail(e.target.value)}
                         required
                     />
-                    <label for="floating-email">
+                    <label htmlFor="floating-email">
                         Email address
                     </label>
                 </div>
@@ -36,9 +57,10 @@ export default function Login() {
                         className="form-control"
                         type="password"
                         placeholder="Password"
+                        onChange={e => setPassword(e.target.value)}
                         required
                     />
-                    <label for="floating-email">
+                    <label htmlFor="floating-email">
                         Password
                     </label>
                 </div>
