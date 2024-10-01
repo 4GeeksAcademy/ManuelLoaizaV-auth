@@ -1,51 +1,53 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
+		store: {},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			logout: () => {
+				localStorage.removeItem('access_token');
 			},
-
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
+			login: async (credentials) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/auth/login`, {
+						'method': 'POST',
+						'body': JSON.stringify(credentials),
+						'headers': {
+							'Access-Control-Allow-Origin': '*',
+							'Content-Type': 'application/json'
+						}
+					});
+					if (!response.ok) {
+						const errorData = await response.json();
+						console.error('Login failed: ', errorData.message);
+						return { error: errorData.message };
+					}
+					const data = await response.json();
+					return { accessToken: data.access_token };
+				} catch (error) {
+					console.error(error);
+					return { error: 'Network error' };
 				}
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+			signup: async (signupForm) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/auth/signup`, {
+						'method': 'POST',
+						'body': JSON.stringify(signupForm),
+						'headers': {
+							'Access-Control-Allow-Origin': '*',
+							'Content-Type': 'application/json'
+						}
+					});
+					if (!response.ok) {
+						const errorData = await response.json();
+						console.error('Signup failed: ', errorData.message);
+						return { error: errorData.message };
+					}
+					const data = await response.json();
+					return { createdUser: data };
+				} catch (error) {
+					console.error(error);
+					return { error: 'Network error' };
+				}
 			}
 		}
 	};
