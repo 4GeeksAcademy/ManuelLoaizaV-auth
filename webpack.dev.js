@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
@@ -47,6 +48,7 @@ module.exports = merge(common, {
         //     semi: true,                 // Print semicolons at the ends of statements.
         //     encoding: 'utf-8'           // Which encoding scheme to use on files
         // }),
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new Dotenv()
     ]
 });

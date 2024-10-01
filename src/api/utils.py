@@ -1,10 +1,10 @@
-from flask import jsonify, url_for
+from flask import url_for
 
-class APIException(Exception):
+class InvalidAPIUsage(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
-        Exception.__init__(self)
+        super().__init__()
         self.message = message
         if status_code is not None:
             self.status_code = status_code
@@ -12,7 +12,7 @@ class APIException(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['message'] = self.message
+        rv["message"] = self.message
         return rv
 
 def has_no_empty_params(rule):
